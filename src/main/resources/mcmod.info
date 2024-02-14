@@ -1,14 +1,14 @@
 [
   {
     "modid": "${modid}",
-    "name": "Example Mod",
-    "description": "A mod that is used as an example.",
+    "name": "OnlyFarm",
+    "description": "Add two features.",
     "version": "${version}",
     "mcversion": "${mcversion}",
-    "url": "https://github.com/romangraef/Forge1.8.9Template/",
+    "url": "https://github.com/superhize/OnlyFarm",
     "updateUrl": "",
     "authorList": [
-      "You"
+      "HiZe"
     ],
     "credits": "",
     "logoFile": "",

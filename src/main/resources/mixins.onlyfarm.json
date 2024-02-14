@@ -1,11 +1,10 @@
 {
-  "package": "${mixinGroup}",
-  "refmap": "mixins.${modid}.refmap.json",
-  "minVersion": "0.7",
-  "compatibilityLevel": "JAVA_8",
-  "mixins": [
-  ],
-  "client": [
-	"MixinGuiMainMenu"
-  ]
+    "package": "be.hize.onlyfarm.mixin.transformers",
+    "refmap": "mixins.${modid}.refmap.json",
+    "plugin": "be.hize.onlyfarm.mixin.init.OnlyfarmMixinPlugin",
+    "minVersion": "0.7",
+    "compatibilityLevel": "JAVA_8",
+    "injectors": {
+        "maxShiftBy": 2
+    }
 }

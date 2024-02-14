@@ -1,14 +1,7 @@
-package be.hize.nes.config.commands
+package be.hize.onlyfarm.commands
 
-import be.hize.nes.NES
-import be.hize.nes.config.ConfigFileType
-import be.hize.nes.config.ConfigGuiManager
-import be.hize.nes.data.GuiEditManager
-import be.hize.nes.features.misc.FarmBorder
-import be.hize.nes.features.misc.Foraging
-import be.hize.nes.features.misc.RawChatMessage
-import be.hize.nes.features.misc.discordrpc.DiscordRPCManager
-import be.hize.nes.features.misc.waypoint.Waypoint
+import be.hize.onlyfarm.config.gui.ConfigGuiManager
+import be.hize.onlyfarm.features.update.AutoUpdate
 import net.minecraft.client.Minecraft
 import net.minecraft.command.ICommandSender
 import net.minecraft.event.ClickEvent
@@ -17,15 +10,11 @@ import net.minecraft.util.ChatComponentText
 import net.minecraftforge.client.ClientCommandHandler
 
 
-object CommandManager {
+object Commands {
 
     private val openMainMenu: (Array<String>) -> Unit = {
         if (it.isNotEmpty()) {
-            if (it[0].lowercase() == "gui") {
-                GuiEditManager.openGuiPositionEditor()
-            } else {
-                ConfigGuiManager.openConfigGui(it.joinToString(" "))
-            }
+            ConfigGuiManager.openConfigGui(it.joinToString(" "))
         } else {
             ConfigGuiManager.openConfigGui()
         }
@@ -35,18 +24,7 @@ object CommandManager {
     private val commands = mutableListOf<CommandInfo>()
 
     enum class CommandCategory(val color: String, val categoryName: String, val description: String) {
-        MAIN("§6", "Main Command", "Most useful commands of NES"),
-        USERS_NORMAL("§e", "Normal Command", "Normal Command for everyone to use"),
-        USERS_BUG_FIX("§f", "User Bug Fix", "A Command to fix small bugs"),
-        DEVELOPER_CODING_HELP(
-            "§5", "Developer Coding Help",
-            "A Command that can help with developing new features. §cIntended for developers only!"
-        ),
-        DEVELOPER_DEBUG_FEATURES(
-            "§9", "Developer Debug Features",
-            "A Command that is useful for monitoring/debugging existing features. §cIntended for developers only!"
-        ),
-        INTERNAL("§8", "Internal Command", "A Command that should §cnever §7be called manually!"),
+        MAIN("§6", "Main Command", "Most useful commands"),
     }
 
     class CommandInfo(val name: String, val description: String, val category: Commands.CommandCategory)
@@ -54,69 +32,16 @@ object CommandManager {
     private var currentCategory = CommandCategory.MAIN
 
     fun init() {
-        currentCategory = CommandCategory.MAIN
         usersMain()
-
-        currentCategory = CommandCategory.USERS_NORMAL
-        usersNormal()
-
-        currentCategory = CommandCategory.USERS_BUG_FIX
-        usersBugFix()
-
-        currentCategory = CommandCategory.DEVELOPER_CODING_HELP
-        developersCodingHelp()
-
-        currentCategory = CommandCategory.DEVELOPER_DEBUG_FEATURES
-        developersDebugFeatures()
-
-        currentCategory = CommandCategory.INTERNAL
-        internalCommands()
     }
 
     private fun usersMain() {
-        registerCommand("nes", "Open the main menu", openMainMenu)
-        registerCommand("nescommands", "Show this list") { commandHelp(it) }
-
-        registerCommand("nesforagingstart", "Foraging") {
-            Foraging.lejob = Foraging.start()
-        }
-        registerCommand("nesforagingsetpos", "Foraging setpos") { Foraging.setPos(it)}
+        registerCommand("of", "Open main menu", openMainMenu)
+        registerCommand("onlyfarm", "Open main menu", openMainMenu)
+        registerCommand("ofupdate", "Check for update") { AutoUpdate.onCommand() }
+        registerCommand("ofcommands", "Commands list") { commandHelp(it) }
     }
 
-    private fun usersNormal() {
-        registerCommand(
-            "nesrpcstart",
-            "Manually starts the Discord Rich Presence feature"
-        ) { DiscordRPCManager.startCommand() }
-        registerCommand(
-            "neswaypoint",
-            "Waypoint commands"
-        ) {
-            Waypoint.Command.process(it)
-        }
-        registerCommand(
-            "nesfarm",
-            "Farm thing"
-        ) {
-            FarmBorder.executeCommand(it)
-        }
-    }
-
-    private fun usersBugFix() {}
-    private fun developersCodingHelp() {
-        registerCommand("neschathistory", "Show chat history") {
-            RawChatMessage.openGui()
-        }
-    }
-
-    private fun developersDebugFeatures() {
-        registerCommand(
-            "nesconfigsave",
-            "Manually saving the config"
-        ) { NES.configManager.saveConfig(ConfigFileType.FEATURES,"manual-command") }
-    }
-
-    private fun internalCommands() {}
 
     private fun commandHelp(args: Array<String>) {
         var filter: (String) -> Boolean = { true }
@@ -124,9 +49,9 @@ object CommandManager {
         if (args.size == 1) {
             val searchTerm = args[0].lowercase()
             filter = { it.lowercase().contains(searchTerm) }
-            title = "NES commands with '§e$searchTerm§7'"
+            title = "Commands with '§e$searchTerm§7'"
         } else {
-            title = "All NES commands"
+            title = "All commands"
         }
         val base = ChatComponentText(" \n§7$title:\n")
         for (command in commands) {

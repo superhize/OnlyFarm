@@ -1,4 +1,3 @@
 package be.hize.onlyfarm.events
 
-class ScoreboardUpdateEvent {
-}
+class ScoreboardUpdateEvent(val scoreboard: List<String>) : ModEvent()

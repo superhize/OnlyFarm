@@ -1,4 +1,3 @@
 package be.hize.onlyfarm.events
 
-class HypixelJoinEvent {
-}
+class HypixelJoinEvent : ModEvent()

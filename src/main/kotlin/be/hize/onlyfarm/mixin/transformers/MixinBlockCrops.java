@@ -2,6 +2,7 @@ package be.hize.onlyfarm.mixin.transformers;
 
 import be.hize.onlyfarm.utils.Utils;
 import net.minecraft.block.BlockBush;
+import net.minecraft.block.BlockCrops;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MovingObjectPosition;
@@ -16,8 +17,7 @@ import org.spongepowered.asm.mixin.Mixin;
  * @author Sk1erLLC
  */
 @Mixin(BlockCrops.class)
-public class BlockCrops extends BlockBush {
-    //#if MC==10809
+public class MixinBlockCrops extends BlockBush {
     @Override
     public AxisAlignedBB getSelectedBoundingBox(World worldIn, BlockPos pos) {
         Utils.INSTANCE.updateCropsMaxY(worldIn, pos, worldIn.getBlockState(pos).getBlock());
@@ -29,5 +29,5 @@ public class BlockCrops extends BlockBush {
         Utils.INSTANCE.updateCropsMaxY(worldIn, pos, worldIn.getBlockState(pos).getBlock());
         return super.collisionRayTrace(worldIn, pos, start, end);
     }
-    //#endif
+
 }

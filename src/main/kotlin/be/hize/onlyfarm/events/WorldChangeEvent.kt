@@ -1,4 +1,3 @@
 package be.hize.onlyfarm.events
 
-class WorldChangeEvent {
-}
+class WorldChangeEvent : ModEvent()

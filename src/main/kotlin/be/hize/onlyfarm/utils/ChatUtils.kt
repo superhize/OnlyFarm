@@ -8,7 +8,7 @@ import net.minecraft.event.HoverEvent
 import net.minecraft.util.ChatComponentText
 import net.minecraft.util.EnumChatFormatting
 import net.minecraft.util.IChatComponent
-import java.util.*
+import java.util.UUID
 
 /**
  * @author nea89

@@ -15,7 +15,8 @@ plugins {
 
 val baseGroup: String by project
 val mcVersion: String by project
-version = ""
+version = "0.0.1"
+group = "be.hize"
 val mixinGroup = "$baseGroup.mixin"
 val modid: String by project
 
@@ -144,9 +145,11 @@ tasks.processResources {
     inputs.property("mcversion", mcVersion)
     inputs.property("modid", modid)
     inputs.property("mixinGroup", mixinGroup)
+    inputs.property("version", version)
 
     filesMatching(listOf("mcmod.info", "mixins.$modid.json")) {
         expand(inputs.properties)
+        expand("version" to version)
     }
 
     rename("(.+_at.cfg)", "META-INF/$1")
@@ -190,4 +193,39 @@ tasks.assemble.get().dependsOn(tasks.remapJar)
 val compileKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions {
     jvmTarget = "1.8"
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            artifact(tasks.remapJar) {
+                classifier = ""
+            }
+            artifact(tasks.jar) {
+                classifier = "named"
+            }
+            pom {
+                name.set(project.name)
+                description.set("Two single farming features.")
+                licenses {
+                    license {
+                        name.set("GPL-3.0-or-later")
+                    }
+                }
+                developers {
+                    developer {
+                        name.set("HiZe")
+                    }
+                }
+                scm {
+                    url.set("https://github.com/superhize/onlyfarm")
+                }
+            }
+        }
+    }
+}
+
+signing {
+    useGpgCmd()
+    sign(publishing.publications["maven"])
 }

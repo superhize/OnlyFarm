@@ -1,4 +1,4 @@
-package be.hize.onlyfarm.mixin;
+package be.hize.onlyfarm.mixin.transformers;
 
 import net.minecraft.client.gui.GuiMainMenu;
 import org.spongepowered.asm.mixin.Mixin;

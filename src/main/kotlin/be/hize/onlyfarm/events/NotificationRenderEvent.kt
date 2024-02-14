@@ -1,4 +1,3 @@
 package be.hize.onlyfarm.events
 
-class NotificationRenderEvent {
-}
+class NotificationRenderEvent : ModEvent()
