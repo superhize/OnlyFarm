@@ -15,7 +15,7 @@ plugins {
 
 val baseGroup: String by project
 val mcVersion: String by project
-version = "0.0.4"
+version = "0.0.5"
 group = "be.hize"
 val mixinGroup = "$baseGroup.mixin"
 val modid: String by project
