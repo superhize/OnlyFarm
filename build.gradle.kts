@@ -7,13 +7,15 @@ plugins {
     id("dev.architectury.architectury-pack200") version "0.1.3"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     kotlin("jvm") version "1.9.0"
+    `maven-publish`
+    signing
 }
 
 //Constants:
 
 val baseGroup: String by project
 val mcVersion: String by project
-val version: String by project
+version = ""
 val mixinGroup = "$baseGroup.mixin"
 val modid: String by project
 
@@ -139,7 +141,6 @@ tasks.withType(Jar::class) {
 }
 
 tasks.processResources {
-    inputs.property("version", project.version)
     inputs.property("mcversion", mcVersion)
     inputs.property("modid", modid)
     inputs.property("mixinGroup", mixinGroup)
