@@ -33,7 +33,15 @@ internal class OnlyFarmMod {
 
     @Mod.EventHandler
     fun preInit(event: FMLPreInitializationEvent) {
+        loadModule(this)
 
+        loadModule(MinecraftData())
+        loadModule(HypixelUtils)
+        loadModule(ScoreboardData)
+
+        loadModule(ButtonOnPause())
+
+        Commands.init()
     }
 
     @Mod.EventHandler
@@ -41,17 +49,8 @@ internal class OnlyFarmMod {
         configManager = ConfigManager()
         configManager.firstLoad()
         Runtime.getRuntime().addShutdownHook(Thread { configManager.saveConfig(ConfigFileType.FEATURES, "shutdown-hook") })
-        loadModule(this)
 
-        loadModule(MinecraftData())
-        loadModule(HypixelUtils)
-        loadModule(ScoreboardData)
         loadModule(AutoUpdate)
-
-        loadModule(ButtonOnPause())
-
-        Commands.init()
-
     }
 
     private fun loadModule(obj: Any) {
@@ -73,16 +72,17 @@ internal class OnlyFarmMod {
     }
 
     companion object {
-        @JvmStatic
-        val feature: Features get() = configManager.features
-        lateinit var configManager: ConfigManager
         const val MOD_ID = "onlyfarm"
 
         @JvmStatic
         val version: String
             get() = Loader.instance().indexedModList[MOD_ID]!!.version
 
+        @JvmStatic
+        val feature: Features get() = configManager.features
+        lateinit var configManager: ConfigManager
         val modules: MutableList<Any> = ArrayList()
+
         private val globalJob: Job = Job(null)
         val coroutineScope = CoroutineScope(
             CoroutineName("OnlyFarm") + SupervisorJob(globalJob)

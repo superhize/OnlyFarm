@@ -3,20 +3,14 @@ package be.hize.onlyfarm.config
 import be.hize.onlyfarm.OnlyFarmMod
 import be.hize.onlyfarm.utils.KotlinTypeAdapterFactory
 import be.hize.onlyfarm.utils.Logger
-import be.hize.onlyfarm.utils.SimpleTimeMark
-import be.hize.onlyfarm.utils.SimpleTimeMark.Companion.asTimeMark
+import be.hize.onlyfarm.utils.Utils
 import be.hize.onlyfarm.utils.Utils.shutdownMinecraft
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
-import com.google.gson.TypeAdapter
-import com.google.gson.stream.JsonReader
-import com.google.gson.stream.JsonWriter
 import io.github.moulberry.moulconfig.observer.PropertyTypeAdapterFactory
 import io.github.moulberry.moulconfig.processor.BuiltinMoulConfigGuis
 import io.github.moulberry.moulconfig.processor.ConfigProcessorDriver
 import io.github.moulberry.moulconfig.processor.MoulConfigProcessor
-import net.minecraft.item.ItemStack
-import net.minecraft.launchwrapper.Launch
 import java.io.*
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
@@ -31,24 +25,6 @@ class ConfigManager {
             .serializeSpecialFloatingPointValues()
             .registerTypeAdapterFactory(PropertyTypeAdapterFactory())
             .registerTypeAdapterFactory(KotlinTypeAdapterFactory())
-            .registerTypeAdapter(UUID::class.java, object : TypeAdapter<UUID>() {
-                override fun write(out: JsonWriter, value: UUID) {
-                    out.value(value.toString())
-                }
-
-                override fun read(reader: JsonReader): UUID {
-                    return UUID.fromString(reader.nextString())
-                }
-            }.nullSafe())
-            .registerTypeAdapter(SimpleTimeMark::class.java, object : TypeAdapter<SimpleTimeMark>() {
-                override fun write(out: JsonWriter, value: SimpleTimeMark) {
-                    out.value(value.toMillis())
-                }
-
-                override fun read(reader: JsonReader): SimpleTimeMark {
-                    return reader.nextString().toLong().asTimeMark()
-                }
-            }.nullSafe())
             .enableComplexMapKeySerialization()
             .create()
 
@@ -79,11 +55,14 @@ class ConfigManager {
         }
 
         val features = OnlyFarmMod.feature
-        processor = MoulConfigProcessor(OnlyFarmMod.feature)
+        processor = MoulConfigProcessor(features)
         BuiltinMoulConfigGuis.addProcessors(processor)
-       // UpdateManager.injectConfigProcessor(processor)
         val configProcessorDriver = ConfigProcessorDriver(processor)
-        configProcessorDriver.processConfig(features)
+        try{
+            configProcessorDriver.processConfig(features)
+        }catch(ex: Exception){
+            println("Exc: ${ex.localizedMessage}")
+        }
     }
 
 
@@ -99,10 +78,10 @@ class ConfigManager {
 
                 logger.log("load-$fileName-now")
 
-                output = if (fileType==ConfigFileType.FEATURES) {
+                output = if (fileType == ConfigFileType.FEATURES) {
                     val jsonObject = gson.fromJson(bufferedReader.readText(), JsonObject::class.java)
                     val run = { gson.fromJson(jsonObject, defaultValue.javaClass) }
-                    if (Launch.blackboard["fml.deobfuscatedEnvironment"] as Boolean) {
+                    if (Utils.isInDevEnviromen()) {
                         try {
                             run()
                         } catch (e: Throwable) {
@@ -131,7 +110,7 @@ class ConfigManager {
             }
         }
 
-        if (output==defaultValue) {
+        if (output == defaultValue) {
             logger.log("Setting $fileName to be blank as it did not exist. It will be saved once something is written to it")
         }
 
@@ -146,7 +125,7 @@ class ConfigManager {
     private fun saveFile(file: File?, fileName: String, data: Any, reason: String) {
         if (disableSaving) return
         logger.log("saveConfig: $reason")
-        if (file==null) throw Error("Can not save $fileName, ${fileName}File is null!")
+        if (file == null) throw Error("Can not save $fileName, ${fileName}File is null!")
         try {
             logger.log("Saving $fileName file")
             file.parentFile.mkdirs()

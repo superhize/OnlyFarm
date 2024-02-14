@@ -7,3 +7,5 @@ git commit -m "Bump version"
 git tag "$newversion"
 git push origin main "$newversion"
 ./gradlew publishAllPublicationsToHizeRepository
+
+pause

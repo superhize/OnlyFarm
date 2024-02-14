@@ -8,6 +8,7 @@ import net.minecraft.block.BlockCrops
 import net.minecraft.block.BlockNetherWart
 import net.minecraft.block.BlockPotato
 import net.minecraft.client.Minecraft
+import net.minecraft.launchwrapper.Launch
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
 import net.minecraft.world.World
@@ -51,6 +52,8 @@ object Utils {
         }
         FMLCommonHandler.instance().handleExit(-1)
     }
+
+    fun isInDevEnviromen() = Launch.blackboard["fml.deobfuscatedEnvironment"] as Boolean
 
     fun updateCropsMaxY(world: World, pos: BlockPos, block: Block) {
         if (!HypixelUtils.onSkyblock) return

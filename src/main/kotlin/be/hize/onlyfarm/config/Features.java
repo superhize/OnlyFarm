@@ -1,8 +1,8 @@
 package be.hize.onlyfarm.config;
 
 import be.hize.onlyfarm.OnlyFarmMod;
-import be.hize.onlyfarm.config.features.Farming;
-import be.hize.onlyfarm.config.features.Other;
+import be.hize.onlyfarm.config.features.FarmingConfig;
+import be.hize.onlyfarm.config.features.OtherConfig;
 import com.google.gson.annotations.Expose;
 import io.github.moulberry.moulconfig.Config;
 import io.github.moulberry.moulconfig.Social;
@@ -43,11 +43,9 @@ public class Features extends Config {
 
     @Expose
     @Category(name = "Farming", desc = "Only category that matter.")
-    public Farming farming = new Farming();
+    public FarmingConfig farming = new FarmingConfig();
 
     @Expose
     @Category(name = "Other", desc = "Not farming related, so it matter less.")
-    public Other other = new Other();
-
-
+    public OtherConfig other = new OtherConfig();
 }

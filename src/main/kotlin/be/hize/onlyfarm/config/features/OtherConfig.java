@@ -4,7 +4,7 @@ import com.google.gson.annotations.Expose;
 import io.github.moulberry.moulconfig.annotations.ConfigEditorBoolean;
 import io.github.moulberry.moulconfig.annotations.ConfigOption;
 
-public class Other {
+public class OtherConfig {
     @Expose
     @ConfigOption(name = "Config Button", desc = "Add a button to the pause menu to configure OnlyFarm")
     @ConfigEditorBoolean

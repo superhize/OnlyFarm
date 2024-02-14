@@ -4,7 +4,7 @@ import com.google.gson.annotations.Expose;
 import io.github.moulberry.moulconfig.annotations.ConfigEditorBoolean;
 import io.github.moulberry.moulconfig.annotations.ConfigOption;
 
-public class Farming {
+public class FarmingConfig {
 
     @Expose
     @ConfigOption(name = "1.12 Crop HitBox", desc = "Enable 1.12 Crop HitBox")
