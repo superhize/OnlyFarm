@@ -2,6 +2,7 @@ package be.hize.onlyfarm.commands
 
 import be.hize.onlyfarm.config.gui.ConfigGuiManager
 import be.hize.onlyfarm.features.update.AutoUpdate
+import be.hize.onlyfarm.utils.CommandActionRegistry
 import net.minecraft.client.Minecraft
 import net.minecraft.command.ICommandSender
 import net.minecraft.event.ClickEvent
@@ -81,6 +82,7 @@ object Commands {
 
     private fun registerCommand(name: String, description: String, function: (Array<String>) -> Unit) {
         ClientCommandHandler.instance.registerCommand(SimpleCommand(name, createCommand(function)))
+        ClientCommandHandler.instance.registerCommand(CommandActionRegistry)
         commands.add(CommandInfo(name, description, currentCategory))
     }
 
