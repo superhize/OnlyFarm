@@ -2,5 +2,4 @@
 .vscode/
 run/
 build/
-.gradle/
-
+.gradle
