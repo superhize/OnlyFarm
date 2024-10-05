@@ -10,11 +10,15 @@ import com.google.gson.reflect.TypeToken
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonToken
 import com.google.gson.stream.JsonWriter
-import kotlin.reflect.*
+import kotlin.reflect.KClass
+import kotlin.reflect.KParameter
+import kotlin.reflect.KProperty1
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
+import kotlin.reflect.javaType
+import kotlin.reflect.typeOf
 
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.CLASS)
@@ -43,16 +47,20 @@ class KotlinTypeAdapterFactory : TypeAdapterFactory {
         val extraDataParam = primaryConstructor.parameters
             .find { it.findAnnotation<ExtraData>() != null && typeOf<MutableMap<String, JsonElement>>().isSubtypeOf(it.type) }
             ?.let { param ->
-                param to kotlinClass.memberProperties.find { it.name == param.name && it.returnType.isSubtypeOf(typeOf<Map<String, JsonElement>>()) } as KProperty1<Any, Map<String, JsonElement>>
+                param to
+                    kotlinClass.memberProperties.find {
+                        it.name == param.name &&
+                            it.returnType.isSubtypeOf(typeOf<Map<String, JsonElement>>())
+                    } as KProperty1<Any, Map<String, JsonElement>>
             }
         val parameterInfos = params.map { param ->
             ParameterInfo(
                 param,
                 gson.getAdapter(
-                    TypeToken.get(`$Gson$Types`.resolve(type.type, type.rawType, param.type.javaType))
+                    TypeToken.get(`$Gson$Types`.resolve(type.type, type.rawType, param.type.javaType)),
                 ) as TypeAdapter<Any?>,
                 param.findAnnotation<SerializedName>()?.value ?: param.name!!,
-                kotlinClass.memberProperties.find { it.name == param.name }!! as KProperty1<Any, Any?>
+                kotlinClass.memberProperties.find { it.name == param.name }!! as KProperty1<Any, Any?>,
             )
         }.associateBy { it.name }
         val jsonElementAdapter = gson.getAdapter(JsonElement::class.java)

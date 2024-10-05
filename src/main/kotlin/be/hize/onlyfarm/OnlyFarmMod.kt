@@ -4,9 +4,14 @@ import be.hize.onlyfarm.commands.Commands
 import be.hize.onlyfarm.config.ConfigFileType
 import be.hize.onlyfarm.config.ConfigManager
 import be.hize.onlyfarm.config.Features
+import be.hize.onlyfarm.config.Notifications
+import be.hize.onlyfarm.data.ChatManager
 import be.hize.onlyfarm.data.MinecraftData
+import be.hize.onlyfarm.data.RenderGuiData
 import be.hize.onlyfarm.data.ScoreboardData
+import be.hize.onlyfarm.data.TitleManager
 import be.hize.onlyfarm.events.ModTickEvent
+import be.hize.onlyfarm.features.misc.CustomNotifications
 import be.hize.onlyfarm.features.other.ButtonOnPause
 import be.hize.onlyfarm.features.update.AutoUpdate
 import be.hize.onlyfarm.utils.HypixelUtils
@@ -38,8 +43,12 @@ internal class OnlyFarmMod {
         loadModule(MinecraftData())
         loadModule(HypixelUtils)
         loadModule(ScoreboardData)
+        loadModule(ChatManager())
 
         loadModule(ButtonOnPause())
+        loadModule(CustomNotifications)
+        loadModule(TitleManager)
+        loadModule(RenderGuiData)
 
         Commands.init()
     }
@@ -79,8 +88,9 @@ internal class OnlyFarmMod {
             get() = Loader.instance().indexedModList[MOD_ID]!!.version
 
         @JvmStatic
-        val feature: Features get() = configManager.features
+        var feature: Features = Features()
         lateinit var configManager: ConfigManager
+        lateinit var notifications: Notifications
         val modules: MutableList<Any> = ArrayList()
 
         private val globalJob: Job = Job(null)

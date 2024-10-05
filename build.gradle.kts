@@ -11,7 +11,7 @@ plugins {
     signing
 }
 
-//Constants:
+// Constants:
 
 val baseGroup: String by project
 val mcVersion: String by project
@@ -44,6 +44,13 @@ repositories {
 
     maven("https://repo.nea.moe/releases")
     maven("https://maven.notenoughupdates.org/releases")
+    maven("https://repo.essential.gg/repository/maven-public")
+
+    maven("https://jitpack.io") {
+        content {
+            includeGroupByRegex("com\\.github\\..*")
+        }
+    }
 }
 
 val shadowImpl: Configuration by configurations.creating {
@@ -83,6 +90,8 @@ dependencies {
 
     shadowImpl(libs.libautoupdate)
     shadowImpl("org.jetbrains.kotlin:kotlin-reflect:1.9.0")
+
+    shadowImpl("com.github.superhize.Vigilance:vigilance-1.8.9-forge:afb0909442")
 }
 
 // Minecraft configuration:
@@ -98,7 +107,10 @@ loom {
         }
     }
     forge {
-        pack200Provider.set(dev.architectury.pack200.java.Pack200Adapter())
+        pack200Provider.set(
+            dev.architectury.pack200.java
+                .Pack200Adapter(),
+        )
         // If you don't want mixins, remove this lines
         mixinConfig("mixins.$modid.json")
     }
@@ -154,7 +166,6 @@ tasks.processResources {
 
     rename("(.+_at.cfg)", "META-INF/$1")
 }
-
 
 val remapJar by tasks.named<net.fabricmc.loom.task.RemapJarTask>("remapJar") {
     archiveClassifier.set("")

@@ -1,6 +1,7 @@
 package be.hize.onlyfarm.utils
 
 import be.hize.onlyfarm.OnlyFarmMod
+import be.hize.onlyfarm.data.TitleManager
 import be.hize.onlyfarm.mixin.transformers.MixinBlockAccessor
 import net.minecraft.block.Block
 import net.minecraft.block.BlockCarrot
@@ -13,6 +14,7 @@ import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
 import net.minecraft.world.World
 import net.minecraftforge.fml.common.FMLCommonHandler
+import kotlin.time.Duration
 
 object Utils {
 
@@ -74,5 +76,9 @@ object Utils {
             return
         }
         blockAccessor.setMaxY(0.25)
+    }
+
+    fun sendTitle(text: String, duration: Duration, height: Double = 1.8, fontSize: Float = 4f) {
+        TitleManager.sendTitle(text, duration, height, fontSize)
     }
 }

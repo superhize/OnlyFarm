@@ -2,8 +2,8 @@ package be.hize.onlyfarm.config.gui
 
 import be.hize.onlyfarm.OnlyFarmMod
 import be.hize.onlyfarm.config.Features
-import io.github.moulberry.moulconfig.gui.GuiScreenElementWrapper
-import io.github.moulberry.moulconfig.gui.MoulConfigEditor
+import io.github.notenoughupdates.moulconfig.gui.GuiScreenElementWrapper
+import io.github.notenoughupdates.moulconfig.gui.MoulConfigEditor
 
 object ConfigGuiManager {
 

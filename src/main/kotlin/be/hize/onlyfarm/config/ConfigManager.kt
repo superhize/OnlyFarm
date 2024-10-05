@@ -1,43 +1,56 @@
 package be.hize.onlyfarm.config
 
 import be.hize.onlyfarm.OnlyFarmMod
-import be.hize.onlyfarm.utils.KotlinTypeAdapterFactory
+import be.hize.onlyfarm.utils.DelayedRun
 import be.hize.onlyfarm.utils.Logger
 import be.hize.onlyfarm.utils.Utils
 import be.hize.onlyfarm.utils.Utils.shutdownMinecraft
-import com.google.gson.GsonBuilder
+import be.hize.onlyfarm.utils.json.BaseGsonBuilder
+import com.google.gson.Gson
 import com.google.gson.JsonObject
-import io.github.moulberry.moulconfig.observer.PropertyTypeAdapterFactory
-import io.github.moulberry.moulconfig.processor.BuiltinMoulConfigGuis
-import io.github.moulberry.moulconfig.processor.ConfigProcessorDriver
-import io.github.moulberry.moulconfig.processor.MoulConfigProcessor
-import java.io.*
+import io.github.notenoughupdates.moulconfig.processor.BuiltinMoulConfigGuis
+import io.github.notenoughupdates.moulconfig.processor.ConfigProcessorDriver
+import io.github.notenoughupdates.moulconfig.processor.MoulConfigProcessor
+import java.io.BufferedReader
+import java.io.BufferedWriter
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.InputStreamReader
+import java.io.OutputStreamWriter
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
-import java.util.*
+import java.util.EnumMap
 import kotlin.concurrent.fixedRateTimer
+import kotlin.reflect.KMutableProperty0
 
 class ConfigManager {
     companion object {
-        val gson = GsonBuilder().setPrettyPrinting()
-            .excludeFieldsWithoutExposeAnnotation()
-            .serializeSpecialFloatingPointValues()
-            .registerTypeAdapterFactory(PropertyTypeAdapterFactory())
-            .registerTypeAdapterFactory(KotlinTypeAdapterFactory())
-            .enableComplexMapKeySerialization()
+        val gson: Gson = BaseGsonBuilder.gson()
+            //  .registerIfBeta(FeatureTogglesByDefaultAdapter)
             .create()
 
         var configDirectory = File("config/onlyfarm")
     }
 
     val features get() = jsonHolder[ConfigFileType.FEATURES] as Features
+    val notifications get() = jsonHolder[ConfigFileType.NOTIFICATIONS] as Notifications
+
     private val logger = Logger("config_manager")
 
-    private val jsonHolder = mutableMapOf<ConfigFileType, Any>()
+    private val jsonHolder: Map<ConfigFileType, Any> = EnumMap(ConfigFileType::class.java)
 
     lateinit var processor: MoulConfigProcessor<Features>
     private var disableSaving = false
+
+    private fun setConfigHolder(type: ConfigFileType, value: Any) {
+        require(value.javaClass == type.clazz)
+        @Suppress("UNCHECKED_CAST")
+        (type.property as KMutableProperty0<Any>).set(value)
+        (jsonHolder as MutableMap<ConfigFileType, Any>)[type] = value
+    }
 
     fun firstLoad() {
         if (jsonHolder.isNotEmpty()) {
@@ -47,20 +60,22 @@ class ConfigManager {
 
 
         for (fileType in ConfigFileType.entries) {
-            jsonHolder[fileType] = firstLoadFile(fileType.file, fileType, fileType.clazz.newInstance())
+            setConfigHolder(fileType, firstLoadFile(fileType.file, fileType, fileType.clazz.newInstance()))
         }
 
-        fixedRateTimer(name = "of-config-auto-save", period = 60_000L, initialDelay = 60_000L) {
-            saveConfig(ConfigFileType.FEATURES, "auto-save-60s")
+        fixedRateTimer(name = "nes-config-auto-save", period = 60_000L, initialDelay = 60_000L) {
+            for (file in ConfigFileType.entries) {
+                saveConfig(file, "auto-save-60s")
+            }
         }
 
         val features = OnlyFarmMod.feature
         processor = MoulConfigProcessor(features)
         BuiltinMoulConfigGuis.addProcessors(processor)
         val configProcessorDriver = ConfigProcessorDriver(processor)
-        try{
+        try {
             configProcessorDriver.processConfig(features)
-        }catch(ex: Exception){
+        } catch (ex: Exception) {
             println("Exc: ${ex.localizedMessage}")
         }
     }
@@ -75,12 +90,13 @@ class ConfigManager {
             try {
                 val inputStreamReader = InputStreamReader(FileInputStream(file), StandardCharsets.UTF_8)
                 val bufferedReader = BufferedReader(inputStreamReader)
+                val lenientGson = BaseGsonBuilder.lenientGson().create()
 
                 logger.log("load-$fileName-now")
 
                 output = if (fileType == ConfigFileType.FEATURES) {
                     val jsonObject = gson.fromJson(bufferedReader.readText(), JsonObject::class.java)
-                    val run = { gson.fromJson(jsonObject, defaultValue.javaClass) }
+                    val run = { lenientGson.fromJson(jsonObject, defaultValue.javaClass) }
                     if (Utils.isInDevEnviromen()) {
                         try {
                             run()
@@ -92,7 +108,7 @@ class ConfigManager {
                         run()
                     }
                 } else {
-                    gson.fromJson(bufferedReader.readText(), defaultValue.javaClass)
+                    lenientGson.fromJson(bufferedReader.readText(), defaultValue.javaClass)
                 }
 
                 logger.log("Loaded $fileName from file")
@@ -135,15 +151,28 @@ class ConfigManager {
                 writer.write(gson.toJson(data))
             }
             // Perform move — which is atomic, unlike writing — after writing is done.
+            move(unit, file, reason)
+        } catch (e: IOException) {
+            logger.log("Could not save $fileName file to $file")
+            e.printStackTrace()
+        }
+    }
+
+    private fun move(unit: File, file: File, reason: String, loop: Int = 0) {
+        try {
             Files.move(
                 unit.toPath(),
                 file.toPath(),
                 StandardCopyOption.REPLACE_EXISTING,
-                StandardCopyOption.ATOMIC_MOVE
+                StandardCopyOption.ATOMIC_MOVE,
             )
-        } catch (e: IOException) {
-            logger.log("Could not save $fileName file to $file")
-            e.printStackTrace()
+        } catch (e: AccessDeniedException) {
+            if (loop == 5) {
+                return
+            }
+            DelayedRun.runNextTick {
+                move(unit, file, reason, loop + 1)
+            }
         }
     }
 
@@ -152,11 +181,10 @@ class ConfigManager {
     }
 }
 
-enum class ConfigFileType(val fileName: String, val clazz: Class<*>) {
-    FEATURES("config", Features::class.java),
+enum class ConfigFileType(val fileName: String, val clazz: Class<*>, val property: KMutableProperty0<*>) {
+    FEATURES("config", Features::class.java, OnlyFarmMod::feature),
+    NOTIFICATIONS("notifications", Notifications::class.java, OnlyFarmMod::notifications),
     ;
 
     val file by lazy { File(ConfigManager.configDirectory, "$fileName.json") }
 }
-
-

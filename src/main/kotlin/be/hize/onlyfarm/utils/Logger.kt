@@ -46,7 +46,7 @@ class Logger(filePath: String) {
     }
 
     private fun initLogger(): Logger {
-        val logger = Logger.getLogger("Lorenz-Logger-" + System.nanoTime())
+        val logger = Logger.getLogger("of-Logger-" + System.nanoTime())
         try {
             createParent(File(fileName))
             val handler = FileHandler(fileName)
@@ -100,7 +100,7 @@ class Logger(filePath: String) {
 
     private fun createParent(file: File) {
         val parent = file.parentFile
-        if (parent!=null && !parent.isDirectory) {
+        if (parent != null && !parent.isDirectory) {
             parent.mkdirs()
         }
     }

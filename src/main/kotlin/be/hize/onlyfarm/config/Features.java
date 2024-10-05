@@ -4,9 +4,8 @@ import be.hize.onlyfarm.OnlyFarmMod;
 import be.hize.onlyfarm.config.features.FarmingConfig;
 import be.hize.onlyfarm.config.features.OtherConfig;
 import com.google.gson.annotations.Expose;
-import io.github.moulberry.moulconfig.Config;
-import io.github.moulberry.moulconfig.Social;
-import io.github.moulberry.moulconfig.annotations.Category;
+import io.github.notenoughupdates.moulconfig.Config;
+import io.github.notenoughupdates.moulconfig.annotations.Category;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.Arrays;
@@ -20,15 +19,6 @@ public class Features extends Config {
     @Override
     public boolean shouldAutoFocusSearchbar() {
         return true;
-    }
-
-    @Override
-    public List<Social> getSocials() {
-        return Arrays.asList(
-            Social.forLink("SkyHanni Discord", DISCORD, "https://discord.com/servers/skyhanni-997079228510117908"),
-            Social.forLink("Elite Skyblock Farmers Discord", DISCORD, "https://discord.gg/farms"),
-            Social.forLink("Look at the code", GITHUB, "https://github.com/superhize/OnlyFarm")
-        );
     }
 
     @Override

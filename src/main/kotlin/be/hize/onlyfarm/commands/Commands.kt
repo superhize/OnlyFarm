@@ -1,6 +1,8 @@
 package be.hize.onlyfarm.commands
 
+import be.hize.onlyfarm.OnlyFarmMod
 import be.hize.onlyfarm.config.gui.ConfigGuiManager
+import be.hize.onlyfarm.features.misc.TestGui
 import be.hize.onlyfarm.features.update.AutoUpdate
 import be.hize.onlyfarm.utils.CommandActionRegistry
 import net.minecraft.client.Minecraft
@@ -41,6 +43,10 @@ object Commands {
         registerCommand("onlyfarm", "Open main menu", openMainMenu)
         registerCommand("ofupdate", "Check for update") { AutoUpdate.onCommand() }
         registerCommand("ofcommands", "Commands list") { commandHelp(it) }
+
+        registerCommand("ofnotif", "Open notifications gui") {
+            OnlyFarmMod.screenToOpen = TestGui()
+        }
     }
 
 

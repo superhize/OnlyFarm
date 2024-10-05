@@ -1,7 +1,7 @@
 package be.hize.onlyfarm.config
 
 import be.hize.onlyfarm.config.gui.ConfigGuiManager
-import io.github.moulberry.moulconfig.gui.GuiScreenElementWrapper
+import io.github.notenoughupdates.moulconfig.gui.GuiScreenElementWrapper
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiScreen
 import net.minecraftforge.fml.client.IModGuiFactory
